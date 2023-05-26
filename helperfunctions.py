@@ -13,6 +13,9 @@ from time import sleep
 # for Connect
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 # for name scraping
 import re
@@ -100,9 +103,16 @@ def createmsg(day_of_week, firstname):
 
     return finstring
 
+#%% Nameeval
 
 def nameeval(name):
-    name = name.split(" | ")[0]  # removes SalesNav part
+    if "," in name:
+        name = name.split(",")[0]
+    finname = name.split()[0].capitalize()
+    return finname
+
+def OLDTABNAMEnameeval(name):
+    #name = name.split(" | ")[0]  # removes SalesNav part
     if "," in name:
         name = name.split(",")[0]
     try:
@@ -157,5 +167,36 @@ def doctornameeval(name):
         statusstring = "This dood didn't work. Continuing...\n"
     return name, statusstring
 
+# %%LOGIN
+def login_to_linkedin(listname):
+    url = "https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin"
+    # Open the URL in the opened webbrowser
+    browser.get(url)
+    # Find username
+    Username = browser.find_element_by_name("session_key")
+    # Send username details
+    Username.send_keys(getemail())
+    # Find password
+    password = browser.find_element_by_name("session_password")
+    # Send password details
+    password.send_keys(getpassword())
+    wait(3)
+    # Submit button
+    browser.find_element_by_xpath('//*[@id="organic-div"]/form/div[3]/button').click()
+    # SALESNAV THEN LEADS
+    browser.implicitly_wait(5)
+    # Navigate to the network page
+    xclick('//*[@id="global-nav"]/div/nav/ul/li[8]/a')  # salesnav
+    # SWITCH TO TAB
+    browser.switch_to.window(browser.window_handles[1])  # swtiches to 1th tab
+    wait(20)
+    sclick("Leads")  # leads
+    wait(10)
+    sclick(listname)  # specific list
+    wait(20)
+    try:
+        sclick(listname)
+    except:
+        wait(30)
 
 print(nameeval("Leonard Dimitri DaSilva, MD, MBA | Sales Navigator"))

@@ -11,7 +11,6 @@ and ChatGPT!
 from secret import *  # username and password
 from helperfunctions import *
 
-
 # %%LOGIN
 def login_to_linkedin(listname):
     url = "https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin"
@@ -44,85 +43,113 @@ def login_to_linkedin(listname):
     except:
         wait(30)
 
-
 # %% COLLECT NAMES - to be called later
 
-
-def names(howmanynames):
-    # Locate the elements that contain the lead names
+def names(howmanynames, page):
     wait(5)
+    #Initialize variables
     namestrings = []
     lastnames = []
-    wait(30)
-
     acclist = ""  # TO BE USED LATER
+    alreadydonelist = "" #FOR GOING BACK THROUGH A LIST A SECOND TIME
 
-    for i in range(howmanynames):
-        # THIS WILL NOW SPIT OUT THE ACCLIST INFO (OR EQUIVALENT)
-        if i == 0:  # GETS YOU TO FIRST NAME- hardcoded
-            tabcontrolenter(9)  # Opens first name tab
+    """ while "ember-view t-sans t-16 t-black t-bold lists-detail__view-profile-name-link" not in browser.find_element(By.CSS_SELECTOR, ".selected-element").get_attribute("class"):
+        # Press the Tab key
+        selected_element.send_keys(Keys.TAB)
+        # Wait for a short period to allow the page to update
+        WebDriverWait(browser, 2).until(EC.staleness_of(selected_element))
+        # Find the newly selected element
+        selected_element = browser.find_element(By.CSS_SELECTOR, ".selected-element") 
+    
+    #browser.find_element("css selector", "ember-view t-sans t-16 t-black t-bold lists-detail__view-profile-name-link")
+
+      tabonly(1)
+    while browser.find_element_by_class_name("ember-view t-sans t-16 t-black t-bold lists-detail__view-profile-name-link").text != browser.switch_to.active_element.text:
+        print('hitting tab to get to next element')
+        tabonly(1) 
+
+    element = browser.find_elements_by_class_name("ember-view t-sans t-16 t-black t-bold lists-detail__view-profile-name-link")
+    #element = browser.find_element(By.CLASS_NAME, "ember-view t-sans t-16 t-black t-bold lists-detail__view-profile-name-link").text
+    # Get the frontend text of the element
+    print(element)
+    #frontend_text = element.text
+    # Print the frontend text
+    #print("SHOULD BE BOB: " + str(frontend_text))
+
+    #THIS ONE ALMOST WORKED
+    #browser.find_element_by_xpath("//label[@class='list-detail__checkbox-label m0']")
+    #tabonly(1)"""
+
+    if page-1 == 1:
+        tabonly(10)
+    else:
+        tabonly(23)
+
+   
+
+    print("TABONLY BOB SLECTOR: " + str(browser.switch_to.active_element.text))
+
+    #tabonly(10)  # Nav to first name tab- hardocded
+    sleep(5)
+    
+    #%% GET NAME AND THEN ACCOUNT NUMBER THEN TO NEXT NAME
+
+    for i in range(howmanynames): #FROM THE FIRST NAME - gives acclist and namestrings
+    
+        name = browser.switch_to.active_element.text
+        print("name selected : " + str(name))
+        namestrings.append(name)
+        lastnames.append(nameeval(name))
+
+        tabonly(2) #gets to company data- hardcoded
+
+        if "Add " in browser.switch_to.active_element.text:  
+            # MAKES ACCLIST- if NO ACCOUNT, "0"
+            acclist += "0"  # PLACES ZERO
+            print("entry "+ str(i+1) + " of the list is a zero")
+            tabonly(2)
+
+            #make the alreadydonelist, which tells you if you've already done this guy
+            if "No activity" in browser.switch_to.active_element.text:
+                alreadydonelist += "0"
+            else:
+                alreadydonelist += "1"
+
+            if i != range(howmanynames): #not end of list
+                tabonly(4)  #hardcoded- needs one less tab if no company
             sleep(5)
         else:
-            tabonly(4)
-            if "Add note" in browser.switch_to.active_element.text:  # NO ACCOUNT
-                acclist += "0"  # PLACES ZERO
-                print("entry ", i, " of the list is a zero")
-                tabcontrolenter(4)
-                sleep(5)
+            acclist += "1"
+            print("entry "+ str(i+1) +" of the list is a one")
+            tabonly(3)
+
+            if "No activity" in browser.switch_to.active_element.text:
+                alreadydonelist += "0"
             else:
-                acclist += "1"
-                print("entry ", i, " of the list is a one")
-                tabcontrolenter(5)
-                sleep(5)
-            print("\n-----\n")
+                alreadydonelist += "1"
 
-        # GETTING FULL TAB NAME
-        wait(150)
-        browser.switch_to.window(browser.window_handles[-1])
-        wait(150)
-        print("NAME NUMBER ", i + 1, " is ", browser.title)
-        namestrings += [browser.title]
+            if i != range(howmanynames): #as long as not end of list
+                tabonly(4)  #hardcoded- needs one more if yes company idk why
+            sleep(5)
+        print("\n-----\n")
 
-        # GETTING LAST NAME ONLY
-        name, statusline = nameeval(browser.title)
-        lastnames.append(name)
-        print(statusline)
-
-        wait(150)
-        browser.close()
-        browser.switch_to.window(browser.window_handles[1])
-
-    # EDGE CASE- LAST ACCLIST VAL
-    tabonly(4)
-    if "Add note" in browser.switch_to.active_element.text:  # NO ACCOUNT
-        acclist += "0"  # PLACES ZERO
-        print("entry ", range(howmanynames)[-1] + 1, " of the list is a zero")
-        # tabcontrolenter(4)
-        sleep(5)
-    else:
-        acclist += "1"
-        print("entry ", range(howmanynames)[-1] + 1, " of the list is a one")
-        # tabcontrolenter(5)
-        sleep(5)
-    print("\n-----\n")
-
-    # print(namestrings) #TROUBLESHOOTING- PRINTS ALL BROWSERTITLES TO TEST NAME SPLICER
+    print(namestrings) #TROUBLESHOOTING- PRINTS ALL BROWSERTITLES TO TEST NAME SPLICER
+    #print(lastnames)
+   
     wait(10)
-    browser.switch_to.window(browser.window_handles[0])  # likely unnecessary
-    browser.switch_to.window(browser.window_handles[1])  # ditto
     acclist = [char for char in acclist]  # makes more parseable
-    print(acclist)
-    print(lastnames)
-    return lastnames, acclist
+    alreadydonelist = [char for char in alreadydonelist]
+    print("\nACCLIST: \n"+str(acclist))
+    print("\nLASTNAMELIST: \n"+str(lastnames))
+    print("\nALREADYDONELIST: \n"+str(alreadydonelist))
+    return lastnames, acclist, alreadydonelist
 
 
 # %% CONNECT- THE MEAT
 
 
 def connect(startfrom=0, legit="no", cheat="no"):
-    totalconns = browser.find_element_by_class_name(
-        "artdeco-spotlight-tab__primary-text"
-    ).text  # TOTAL CONNECTIONS ON THE WHOLE LIST
+    totalconns = browser.find_element_by_class_name("artdeco-spotlight-tab__primary-text").text  # TOTAL CONNECTIONS ON THE WHOLE LIST
     print(
         "total connections = " + totalconns
     )  # Spits the right number but needs to be 25 unless on last page
@@ -142,6 +169,17 @@ def connect(startfrom=0, legit="no", cheat="no"):
         else:
             howmany = totalconns % 25
 
+        # If there's not a single available account skip the page!
+        if "No Activity" in browser.find_element_by_tag_name("body").text:
+            pass
+        else:
+            print("SKIPPING PAGE" + str(page-1) + " bc it's already done")
+            browser.find_element_by_xpath(
+            f"//button[@type='button' and starts-with(@aria-label, 'Page {page}')]"
+            ).click()  # CLICKS NEXT PAGE TO START OVER
+            sleep(8)
+            freshstart()
+            continue
         # if startpage != 1:
         #    browser.find_element_by_xpath(f"//button[@type='button' and starts-with(@aria-label, 'Page {page}')]").click() #CLICKS NEXT PAGE TO START OVER
         #    break
@@ -159,62 +197,11 @@ def connect(startfrom=0, legit="no", cheat="no"):
 
         # GET LIST OF SPLICED NAMES FROM THE NAMES FUNCTION- or if testing, hardcoded
         if cheat == "no":
-            finnames, acclist = names(howmany)
+            finnames, acclist, alreadydonelist = names(howmany, page)
         else:  # CHANGE W EACH TEST
-            finnames = [
-                "Ziemke",
-                "Graber",
-                "Payne",
-                "Martin",
-                "",
-                "Shapiro",
-                "Durkin",
-                "Huebner",
-                "Leon",
-                "",
-                "Jegasothy",
-                "Clark-Loeser",
-                "Gaines",
-                "Correa-Perez",
-                "Ozdemir",
-                "Gupta",
-                "Lickstein",
-                "Croley",
-                "Zaiac",
-                "Krishtul",
-                "Sosa",
-                "Grubbs",
-                "Wallace",
-                "Roudner",
-                "Howard",
-            ]
-            acclist = [
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "0",
-                "0",
-                "1",
-                "0",
-                "1",
-                "1",
-                "1",
-                "0",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-                "1",
-            ]
+            finnames = ['Bob Cunanan', 'Miranda Cobo', 'Tino Marino', 'Chelsea Campbell', 'Taylor Wical', 'estevan M.', 'Lorenzo Mesina Jr.', 'Karima L.', 'Anthony Elibert', 'Isiah Munoz', 'Michelle P.', 'Patti Becker', 'Edu Honesko', 'Maya Sanden', 'Kimberly Derrick', 'Anita Holcomb-Stone', 'Andy Starnes', 'Lucas Crawford', 'Joshua Rucker', 'David Tofani', 'Robert Pearey', 'Amanda Quintana', 'Stephanie Driscoll', 'Jennifer Brock', 'Ian Doyle']
+            acclist = ['1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1']
+            alreadydonelist = ['1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1']
             print("using cheat list")
 
         # statuses
@@ -231,15 +218,14 @@ def connect(startfrom=0, legit="no", cheat="no"):
         # MAKE IT HAPPEN
         failindexes = []
         for i in range(startfrom, howmany):  # CHANGE THIS CHANGE THIS CHANGE THIS
+            #for unexpected errors with connecting
             strike = 1
-            # CLICK VERSION- PREFERRED BUT SCROLL ISSUES
             while True:
                 if finnames[i] == "":
-                    print(
-                        "SKIPPING THE LUNATIC WITHOUT PUNCTUATION IN THEIR NAME- NUMBER {}".format(
-                            i
-                        )
-                    )
+                    print("SKIPPING THE LUNATIC WITHOUT PUNCTUATION IN THEIR NAME- NUMBER {}".format(i+1))
+                    break
+                if alreadydonelist[i] == "1": #IF HAS ALREADY BEEN SUCCESSFULLY DONE DONT WASTE THE TIME
+                    print("ALREADY DID "+str(finnames[i])+" (NUMBER {}) ON A PREVIOUS RUN".format(i+1))
                     break
                 else:
                     try:
@@ -306,7 +292,7 @@ def connect(startfrom=0, legit="no", cheat="no"):
                             break
         print(
             "\n-----\nON PAGE "
-            + str((i + 1))
+            + str((page-1))
             + ", Connected to "
             + str(len(range(startfrom, howmany)) - len(failindexes))
             + " out of "
@@ -321,6 +307,8 @@ def connect(startfrom=0, legit="no", cheat="no"):
         browser.find_element_by_xpath(
             f"//button[@type='button' and starts-with(@aria-label, 'Page {page}')]"
         ).click()  # CLICKS NEXT PAGE TO START OVER
+        sleep(8)
+        freshstart()
 
 
 # %% Get shit bumpin
