@@ -43,107 +43,6 @@ def login_to_linkedin(listname):
     except:
         wait(30)
 
-# %% COLLECT NAMES - to be called later
-
-def names(howmanynames, page):
-    wait(5)
-    #Initialize variables
-    namestrings = []
-    lastnames = []
-    acclist = ""  # TO BE USED LATER
-    alreadydonelist = "" #FOR GOING BACK THROUGH A LIST A SECOND TIME
-
-    """ while "ember-view t-sans t-16 t-black t-bold lists-detail__view-profile-name-link" not in browser.find_element(By.CSS_SELECTOR, ".selected-element").get_attribute("class"):
-        # Press the Tab key
-        selected_element.send_keys(Keys.TAB)
-        # Wait for a short period to allow the page to update
-        WebDriverWait(browser, 2).until(EC.staleness_of(selected_element))
-        # Find the newly selected element
-        selected_element = browser.find_element(By.CSS_SELECTOR, ".selected-element") 
-    
-    #browser.find_element("css selector", "ember-view t-sans t-16 t-black t-bold lists-detail__view-profile-name-link")
-
-      tabonly(1)
-    while browser.find_element_by_class_name("ember-view t-sans t-16 t-black t-bold lists-detail__view-profile-name-link").text != browser.switch_to.active_element.text:
-        print('hitting tab to get to next element')
-        tabonly(1) 
-
-    element = browser.find_elements_by_class_name("ember-view t-sans t-16 t-black t-bold lists-detail__view-profile-name-link")
-    #element = browser.find_element(By.CLASS_NAME, "ember-view t-sans t-16 t-black t-bold lists-detail__view-profile-name-link").text
-    # Get the frontend text of the element
-    print(element)
-    #frontend_text = element.text
-    # Print the frontend text
-    #print("SHOULD BE BOB: " + str(frontend_text))
-
-    #THIS ONE ALMOST WORKED
-    #browser.find_element_by_xpath("//label[@class='list-detail__checkbox-label m0']")
-    #tabonly(1)"""
-
-    if page-1 == 1:
-        tabonly(10)
-    else:
-        tabonly(23)
-
-   
-
-    print("TABONLY BOB SLECTOR: " + str(browser.switch_to.active_element.text))
-
-    #tabonly(10)  # Nav to first name tab- hardocded
-    sleep(5)
-    
-    #%% GET NAME AND THEN ACCOUNT NUMBER THEN TO NEXT NAME
-
-    for i in range(howmanynames): #FROM THE FIRST NAME - gives acclist and namestrings
-    
-        name = browser.switch_to.active_element.text
-        print("name selected : " + str(name))
-        namestrings.append(name)
-        lastnames.append(nameeval(name))
-
-        tabonly(2) #gets to company data- hardcoded
-
-        if "Add " in browser.switch_to.active_element.text:  
-            # MAKES ACCLIST- if NO ACCOUNT, "0"
-            acclist += "0"  # PLACES ZERO
-            print("entry "+ str(i+1) + " of the list is a zero")
-            tabonly(2)
-
-            #make the alreadydonelist, which tells you if you've already done this guy
-            if "No activity" in browser.switch_to.active_element.text:
-                alreadydonelist += "0"
-            else:
-                alreadydonelist += "1"
-
-            if i != range(howmanynames): #not end of list
-                tabonly(4)  #hardcoded- needs one less tab if no company
-            sleep(5)
-        else:
-            acclist += "1"
-            print("entry "+ str(i+1) +" of the list is a one")
-            tabonly(3)
-
-            if "No activity" in browser.switch_to.active_element.text:
-                alreadydonelist += "0"
-            else:
-                alreadydonelist += "1"
-
-            if i != range(howmanynames): #as long as not end of list
-                tabonly(4)  #hardcoded- needs one more if yes company idk why
-            sleep(5)
-        print("\n-----\n")
-
-    print(namestrings) #TROUBLESHOOTING- PRINTS ALL BROWSERTITLES TO TEST NAME SPLICER
-    #print(lastnames)
-   
-    wait(10)
-    acclist = [char for char in acclist]  # makes more parseable
-    alreadydonelist = [char for char in alreadydonelist]
-    print("\nACCLIST: \n"+str(acclist))
-    print("\nLASTNAMELIST: \n"+str(lastnames))
-    print("\nALREADYDONELIST: \n"+str(alreadydonelist))
-    return lastnames, acclist, alreadydonelist
-
 
 # %% CONNECT- THE MEAT
 
@@ -160,25 +59,28 @@ def connect(startfrom=0, legit="no", cheat="no"):
     # print the number of buttons found
     print(f"Number of pages: {len(pagebuttons)}")
 
-    #   browser.find_element_by_xpath(f"//button[@type='button' and starts-with(@aria-label, 'Page {2}')]").click() #CLICKS NEXT PAGE TO START OVER
+    for page in range(1, len(pagebuttons) + 1):
+        print("current page = " + str(page))
 
-    for page in range(2, len(pagebuttons) + 1):
-        print("current page = " + str(page - 1))
-        if page - 1 != len(pagebuttons):
+        #GO TO NEXT PAGE IF NOT THE FIRST PAGE
+        if page != 1:
+            browser.find_element_by_xpath(
+                f"//button[@type='button' and starts-with(@aria-label, 'Page {page}')]"
+            ).click()  # CLICKS NEXT PAGE TO START OVER
+            sleep(8)
+            freshstart()
+
+        
+        if page != len(pagebuttons):
             howmany = 25
         else:
-            howmany = totalconns % 25
+            howmany = int(totalconns) % 25
 
         # If there's not a single available account skip the page!
         if "No activity" in browser.page_source:
             pass
         else:
-            print("SKIPPING PAGE " + str(page-1) + " bc it's already done")
-            browser.find_element_by_xpath(
-            f"//button[@type='button' and starts-with(@aria-label, 'Page {page}')]"
-            ).click()  # CLICKS NEXT PAGE TO START OVER
-            sleep(8)
-            freshstart()
+            print("SKIPPING PAGE " + str(page) + " bc it's already done")
             continue
 
         # initial data
@@ -212,9 +114,13 @@ def connect(startfrom=0, legit="no", cheat="no"):
             acclist.count("0"),
         )
 
-        # MAKE IT HAPPEN
-        failindexes = []
+        # for total metrics
+        totsucc = 0
+        totposs = 0
+        thisrunsucc = 0
+
         for i in range(startfrom, howmany):  # CHANGE THIS CHANGE THIS CHANGE THIS
+            failindexes = []
             #for unexpected errors with connecting
             strike = 1
             while True:
@@ -268,6 +174,7 @@ def connect(startfrom=0, legit="no", cheat="no"):
                                 + ", entry number "
                                 + str(i + 1)
                             )
+                            thisrunsucc += 1
                         else:
                             tabenter(1)
                         break
@@ -287,25 +194,30 @@ def connect(startfrom=0, legit="no", cheat="no"):
                             print("SKIPPING NUMBER ", str(i + 1))
                             failindexes.append(i + 1)
                             break
-        print(
-            "\n-----\nON PAGE "
-            + str((page-1))
-            + ", Connected to "
-            + str(len(range(startfrom, howmany)) - len(failindexes))
-            + " out of "
-            + str(len(l))
-            + " accounts. Failures include "
-            + ", ".join(str(finnames[i]) for i in failindexes)
-            + " (names "
-            + str(failindexes)
-            + ")"
-        )
-
-        browser.find_element_by_xpath(
-            f"//button[@type='button' and starts-with(@aria-label, 'Page {page}')]"
-        ).click()  # CLICKS NEXT PAGE TO START OVER
-        sleep(8)
-        freshstart()
+            successes = len(range(startfrom, howmany)) - len(failindexes)
+            totsucc += successes
+            maxconns = len(l)
+            totposs += maxconns
+            print(
+                "\n-----\nON PAGE "
+                + str((page))
+                + ", Connected to "
+                + str(successes)
+                + " out of "
+                + str(maxconns)
+                + " accounts. Failures include "
+                + ", ".join(str(finnames[i]) for i in failindexes)
+                + " (names "
+                + str(failindexes)
+                + ")")
+        print("\n--------\n\nFINAL RESULTS OF THIS RUN:\n now connected to " 
+              + str(totsucc) 
+              + " out of " 
+              + str(totposs) 
+              + " entries on the list. This might not be perfect, but if it's run more than twice then it just may be a fringe case."
+              + "\n This run specifically, connected to "
+              + str(thisrunsucc)
+              + " people. Good looks!")
 
 
 # %% Get shit bumpin
@@ -315,5 +227,5 @@ def connect(startfrom=0, legit="no", cheat="no"):
 wait(10)
 
 # Call all the functions in order based on webpages
-login_to_linkedin("Personal Trainers 8")  # NAV TO THIS LIST
+login_to_linkedin("Personal Trainers 9")  # NAV TO THIS LIST
 connect(startfrom=0, legit="yes", cheat="no")

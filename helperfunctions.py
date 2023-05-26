@@ -167,36 +167,71 @@ def doctornameeval(name):
         statusstring = "This dood didn't work. Continuing...\n"
     return name, statusstring
 
-# %%LOGIN
-def login_to_linkedin(listname):
-    url = "https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin"
-    # Open the URL in the opened webbrowser
-    browser.get(url)
-    # Find username
-    Username = browser.find_element_by_name("session_key")
-    # Send username details
-    Username.send_keys(getemail())
-    # Find password
-    password = browser.find_element_by_name("session_password")
-    # Send password details
-    password.send_keys(getpassword())
-    wait(3)
-    # Submit button
-    browser.find_element_by_xpath('//*[@id="organic-div"]/form/div[3]/button').click()
-    # SALESNAV THEN LEADS
-    browser.implicitly_wait(5)
-    # Navigate to the network page
-    xclick('//*[@id="global-nav"]/div/nav/ul/li[8]/a')  # salesnav
-    # SWITCH TO TAB
-    browser.switch_to.window(browser.window_handles[1])  # swtiches to 1th tab
-    wait(20)
-    sclick("Leads")  # leads
+# %% COLLECT NAMES - to be called later
+
+def names(howmanynames, page):
+    wait(5)
+    #Initialize variables
+    namestrings = []
+    lastnames = []
+    acclist = ""  # TO BE USED LATER
+    alreadydonelist = "" #FOR GOING BACK THROUGH A LIST A SECOND TIME
+
+    if page == 1:
+        tabonly(10)
+    else:
+        tabonly(23)
+    sleep(5)
+    
+    # GET NAME AND THEN ACCOUNT NUMBER THEN TO NEXT NAME
+    for i in range(howmanynames): #FROM THE FIRST NAME - gives acclist and namestrings
+    
+        name = browser.switch_to.active_element.text
+        print("name selected : " + str(name))
+        namestrings.append(name)
+        lastnames.append(nameeval(name))
+
+        tabonly(2) #gets to company data- hardcoded
+
+        if "Add " in browser.switch_to.active_element.text:  
+            # MAKES ACCLIST- if NO ACCOUNT, "0"
+            acclist += "0"  # PLACES ZERO
+            print("entry "+ str(i+1) + " of the list is a zero")
+            tabonly(2)
+
+            #make the alreadydonelist, which tells you if you've already done this guy
+            if "No activity" in browser.switch_to.active_element.text:
+                alreadydonelist += "0"
+            else:
+                alreadydonelist += "1"
+
+            if i != range(howmanynames): #not end of list
+                tabonly(4)  #hardcoded- needs one less tab if no company
+            sleep(5)
+        else:
+            acclist += "1"
+            print("entry "+ str(i+1) +" of the list is a one")
+            tabonly(3)
+
+            if "No activity" in browser.switch_to.active_element.text:
+                alreadydonelist += "0"
+            else:
+                alreadydonelist += "1"
+
+            if i != range(howmanynames): #as long as not end of list
+                tabonly(4)  #hardcoded- needs one more if yes company idk why
+            sleep(5)
+        print("\n-----\n")
+
+    print(namestrings) #TROUBLESHOOTING- PRINTS ALL BROWSERTITLES TO TEST NAME SPLICER
+    #print(lastnames)
+   
     wait(10)
-    sclick(listname)  # specific list
-    wait(20)
-    try:
-        sclick(listname)
-    except:
-        wait(30)
+    acclist = [char for char in acclist]  # makes more parseable
+    alreadydonelist = [char for char in alreadydonelist]
+    print("\nACCLIST: \n"+str(acclist))
+    print("\nLASTNAMELIST: \n"+str(lastnames))
+    print("\nALREADYDONELIST: \n"+str(alreadydonelist))
+    return lastnames, acclist, alreadydonelist
 
 print(nameeval("Leonard Dimitri DaSilva, MD, MBA | Sales Navigator"))
