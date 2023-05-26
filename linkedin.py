@@ -170,19 +170,16 @@ def connect(startfrom=0, legit="no", cheat="no"):
             howmany = totalconns % 25
 
         # If there's not a single available account skip the page!
-        if "No Activity" in browser.find_element_by_tag_name("body").text:
+        if "No activity" in browser.page_source:
             pass
         else:
-            print("SKIPPING PAGE" + str(page-1) + " bc it's already done")
+            print("SKIPPING PAGE " + str(page-1) + " bc it's already done")
             browser.find_element_by_xpath(
             f"//button[@type='button' and starts-with(@aria-label, 'Page {page}')]"
             ).click()  # CLICKS NEXT PAGE TO START OVER
             sleep(8)
             freshstart()
             continue
-        # if startpage != 1:
-        #    browser.find_element_by_xpath(f"//button[@type='button' and starts-with(@aria-label, 'Page {page}')]").click() #CLICKS NEXT PAGE TO START OVER
-        #    break
 
         # initial data
         l = browser.find_elements_by_xpath(
@@ -318,5 +315,5 @@ def connect(startfrom=0, legit="no", cheat="no"):
 wait(10)
 
 # Call all the functions in order based on webpages
-login_to_linkedin("Personal Trainers 9")  # NAV TO THIS LIST
+login_to_linkedin("Personal Trainers 8")  # NAV TO THIS LIST
 connect(startfrom=0, legit="yes", cheat="no")
