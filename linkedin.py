@@ -59,11 +59,15 @@ def connect(startfrom=0, legit="no", cheat="no"):
     # print the number of buttons found
     print(f"Number of pages: {len(pagebuttons)}")
 
+    #End of run metrics
+    totsucc = 0
+    totposs = 0
     for page in range(1, len(pagebuttons) + 1):
-        print("current page = " + str(page))
+        print("\n---\ncurrent page = " + str(page))
 
         #GO TO NEXT PAGE IF NOT THE FIRST PAGE
         if page != 1:
+            freshstart()
             browser.find_element_by_xpath(
                 f"//button[@type='button' and starts-with(@aria-label, 'Page {page}')]"
             ).click()  # CLICKS NEXT PAGE TO START OVER
@@ -115,8 +119,6 @@ def connect(startfrom=0, legit="no", cheat="no"):
         )
 
         # for total metrics
-        totsucc = 0
-        totposs = 0
         thisrunsucc = 0
 
         for i in range(startfrom, howmany):  # CHANGE THIS CHANGE THIS CHANGE THIS
@@ -180,7 +182,7 @@ def connect(startfrom=0, legit="no", cheat="no"):
                         break
 
                     except:
-                        if strike != 3:
+                        if strike != 2:
                             strike += 1
                             freshstart()  # If scroll gets fucky, refresh
                             sleep(8)
@@ -198,26 +200,26 @@ def connect(startfrom=0, legit="no", cheat="no"):
             totsucc += successes
             maxconns = len(l)
             totposs += maxconns
-            print(
-                "\n-----\nON PAGE "
-                + str((page))
-                + ", Connected to "
-                + str(successes)
-                + " out of "
-                + str(maxconns)
-                + " accounts. Failures include "
-                + ", ".join(str(finnames[i]) for i in failindexes)
-                + " (names "
-                + str(failindexes)
-                + ")")
-        print("\n--------\n\nFINAL RESULTS OF THIS RUN:\n now connected to " 
-              + str(totsucc) 
-              + " out of " 
-              + str(totposs) 
-              + " entries on the list. This might not be perfect, but if it's run more than twice then it just may be a fringe case."
-              + "\n This run specifically, connected to "
-              + str(thisrunsucc)
-              + " people. Good looks!")
+        print(
+            "\n-----\nON PAGE "
+            + str((page))
+            + ", Connected to "
+            + str(successes)
+            + " out of "
+            + str(maxconns)
+            + " accounts. Failures include FILLER"
+            #+ ", ".join(str(finnames[i]) for i in failindexes)
+            + " (names "
+            + str(failindexes)
+            + ")")
+    print("\n--------\n\nFINAL RESULTS OF THIS RUN:\n now connected to " 
+            + str(totsucc) 
+            + " out of " 
+            + str(totposs) 
+            + " entries on the list. This might not be perfect, but if it's run more than twice then it just may be a fringe case."
+            + "\n This run specifically, connected to "
+            + str(thisrunsucc)
+            + " people. Good looks!")
 
 
 # %% Get shit bumpin
@@ -227,5 +229,5 @@ def connect(startfrom=0, legit="no", cheat="no"):
 wait(10)
 
 # Call all the functions in order based on webpages
-login_to_linkedin("Personal Trainers 9")  # NAV TO THIS LIST
+login_to_linkedin("Personal Trainers 11")  # NAV TO THIS LIST
 connect(startfrom=0, legit="yes", cheat="no")
