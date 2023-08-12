@@ -12,7 +12,7 @@ from secret import *  # username and password
 from helperfunctions import *
 
 # %%LOGIN
-def login_to_linkedin(listname):
+def login_to_linkedin():
     url = "https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin"
     # Open the URL in the opened webbrowser
     browser.get(url)
@@ -32,6 +32,14 @@ def login_to_linkedin(listname):
     # Navigate to the network page
     xclick('//*[@id="global-nav"]/div/nav/ul/li[8]/a')  # salesnav
     # SWITCH TO TAB
+    
+
+
+# %% CONNECT- THE MEAT
+
+
+def connect(listname, startfrom=0, legit="no", cheat="no"):
+    #Starting from SalesNav
     browser.switch_to.window(browser.window_handles[1])  # swtiches to 1th tab
     wait(20)
     sclick("Leads")  # leads
@@ -43,11 +51,6 @@ def login_to_linkedin(listname):
     except:
         wait(30)
 
-
-# %% CONNECT- THE MEAT
-
-
-def connect(startfrom=0, legit="no", cheat="no"):
     totalconns = browser.find_element_by_class_name("artdeco-spotlight-tab__primary-text").text  # TOTAL CONNECTIONS ON THE WHOLE LIST
     print(
         "total connections = " + totalconns
@@ -225,9 +228,30 @@ def connect(startfrom=0, legit="no", cheat="no"):
 # %% Get shit bumpin
 # Open the webbrowser and use it for autonomous control
 
+def followup():
+    browser.switch_to.window(browser.window_handles[1])  # swtiches to 1th tab
+    wait(20)
+    sclick("Messages")  # leads
+    wait(10)    
+    pass
+
+
+
 # Start using the functions after a delay
 wait(10)
 
+def entrepreneurs(integer):
+    number = str(integer)
+    try:
+        connect("Entrepreneurs "+number, startfrom=0, legit="yes", cheat="no")
+        connect("Entrepreneurs "+number, startfrom=0, legit="yes", cheat="no")
+        connect("Entrepreneurs "+number, startfrom=0, legit="yes", cheat="no")
+    except:
+        connect("Entrepreneurs "+number, startfrom=0, legit="yes", cheat="no")
+        connect("Entrepreneurs "+number, startfrom=0, legit="yes", cheat="no")
+        connect("Entrepreneurs "+number, startfrom=0, legit="yes", cheat="no")
+
 # Call all the functions in order based on webpages
-login_to_linkedin("Personal Trainers 11")  # NAV TO THIS LIST
-connect(startfrom=0, legit="yes", cheat="no")
+login_to_linkedin()
+
+entrepreneurs(10)

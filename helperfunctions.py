@@ -87,19 +87,29 @@ def day_of_week():
 
 def createmsg(day_of_week, firstname):
     # finstring = "Hello Dr. "+lastname+", Happy "+day_of_week+"!\n\nI was reaching out to ask about any logistical inefficiencies in your practice’s daily operations. My company, Titan Software, specializes in custom HIPAA-compliant medical software and implementation. Could we meet and discuss your needs?\n\nThank you,\nJake Mann"
+    #message = "I have recently begun a software company specializing in custom solutions in the fitness industry. As an independent owner, I really admire what you’re doing and would love to talk about easing some of your daily pain points with tailor-made software?"
+    #message = "I have recently begun a software company specializing in custom solutions for new entrepreneurs. As an independent owner, I really admire what you’re doing and would love to talk about easing your early development with tailor-made software or a fresh website?"
+    #Entrepreneur Message
+    #message = "Would you be available for a short interview? I started a custom software company for startups and I would love to pick your brain to learn more about our clientele. I won't use this time to pitch anything, rather just better understand your daily pain points."
+    #Event planners
+    #message = "Would you be available for a short interview? I’m considering beginning a virtual assistant (VA) company for event planners and I would love to pick your brain to learn more about our potential clientele. I would love to hear about a day in your life."
+    #Older entrepreneurs
+    message = "Would you be interested in buying a three day weekend? My cofounder and I have recently begun a Virtual Personal Assistant (VPA) company and would love to speak with you to see if we can help a fellow entrepreneur free up some time by delegating monotonous tasks."
+
     finstring = (
         "Hello "
         + firstname
         + ", Happy "
         + day_of_week
-        + "!\n\nI have recently begun a software company specializing in custom solutions in the fitness industry and found your profile. As an independent owner, I really admire what you’re doing and would love to talk about strengthening your digital presence with a new website?"
+        + "!\n\n"
     )
-    if len(finstring) > 300:
+    if len(finstring+message) > 300:
         finstring = (
         "Howdy "
         + firstname
-        + "!\n\nI have recently begun a software company specializing in custom solutions in the fitness industry and found your profile. As an independent owner, I really admire what you’re doing and would love to talk about strengthening your digital presence with a new website?"
+        + "!\n\n"
     )
+    finstring += message
 
     return finstring
 
